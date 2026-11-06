@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balance the Scale</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:Inter,Arial,sans-serif;
+  background:linear-gradient(135deg,#eef4ff,#e4f8f2);
+  color:#26334a;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:24px;
+}
+.container{
+  width:100%;
+  max-width:850px;
+  background:#fff;
+  border-radius:24px;
+  padding:30px;
+  box-shadow:0 15px 45px rgba(37,57,85,.12);
+}
+header{text-align:center;margin-bottom:25px}
+h1{font-size:2rem;color:#253c68;margin-bottom:8px}
+header p{color:#718096;font-size:.95rem;line-height:1.5}
+.stats{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:25px;
+}
+.stat{
+  background:#f1f5fb;
+  padding:10px 18px;
+  border-radius:12px;
+  font-size:.9rem;
+}
+.stat strong{color:#315fbd}
+.scale-area{
+  position:relative;
+  height:290px;
+  background:#f7f9fd;
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:25px;
+}
+.ground{
+  position:absolute;
+  bottom:35px;
+  left:8%;
+  width:84%;
+  height:5px;
+  background:#cbd5e1;
+  border-radius:10px;
+}
+.pivot{
+  position:absolute;
+  bottom:40px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:38px solid transparent;
+  border-right:38px solid transparent;
+  border-bottom:105px solid #8294b3;
+}
+.seesaw{
+  position:absolute;
+  left:50%;
+  bottom:135px;
+  width:76%;
+  height:14px;
+  transform:translateX(-50%) rotate(0deg);
+  transform-origin:center center;
+  background:linear-gradient(90deg,#e99b46,#f4bd62);
+  border-radius:10px;
+  box-shadow:0 4px 8px rgba(0,0,0,.12);
+  transition:transform .65s cubic-bezier(.2,.8,.3,1);
+}
+.side{
+  position:absolute;
+  bottom:100%;
+  width:45%;
+  height:105px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:5px;
+  padding-bottom:8px;
+}
+.side.left{left:0}
+.side.right{right:0}
+.block{
+  width:30px;
+  min-height:30px;
+  max-height:85px;
+  border-radius:6px 6px 3px 3px;
+  background:linear-gradient(145deg,#64a7f4,#3475d0);
+  border:2px solid rgba(255,255,255,.65);
+  box-shadow:0 3px 5px rgba(0,0,0,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:.75rem;
+  font-weight:800;
+  animation:pop .2s ease-out;
+}
+.right .block{background:linear-gradient(145deg,#fb9b83,#e76b58)}
+@keyframes pop{
+  from{transform:scale(.5);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.side-label{
+  position:absolute;
+  bottom:12px;
+  font-weight:800;
+  font-size:.85rem;
+  color:#718096;
+}
+.left-label{left:13%}
+.right-label{right:13%}
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.control-card{
+  background:#f7f9fd;
+  border:1px solid #e7edf6;
+  padding:18px;
+  border-radius:16px;
+}
+.control-card h2{font-size:1.05rem;margin-bottom:6px}
+.control-card p{font-size:.85rem;color:#718096;margin-bottom:14px}
+.buttons{display:flex;gap:8px;flex-wrap:wrap}
+button{
+  border:0;
+  padding:10px 15px;
+  border-radius:9px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:.85rem;
+  transition:transform .15s,filter .15s;
+}
+button:hover{filter:brightness(.95);transform:translateY(-2px)}
+button:active{transform:scale(.97)}
+.add-left{background:#3475d0;color:white}
+.add-right{background:#e76b58;color:white}
+.remove{background:#e8edf5;color:#42516a}
+.bottom-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+.status{
+  flex:1;
+  min-width:220px;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#f1f5fb;
+  color:#53647d;
+  font-weight:700;
+  text-align:center;
+  font-size:.92rem;
+}
+.status.balanced{background:#dcfce9;color:#16834a}
+.reset{background:#253c68;color:white;padding:12px 20px}
+.weight-summary{
+  display:flex;
+  justify-content:space-around;
+  gap:10px;
+  margin-top:18px;
+  font-size:.9rem;
+  color:#64748b;
+}
+.weight-summary strong{color:#253c68}
+@media(max-width:600px){
+  .container{padding:20px}
+  h1{font-size:1.65rem}
+  .controls{grid-template-columns:1fr}
+  .scale-area{height:250px}
+  .seesaw{width:84%;bottom:120px}
+  .pivot{bottom:25px}
+  .ground{bottom:20px}
+  .side-label{bottom:5px}
+  .side{height:90px}
+  .block{width:25px}
+}
+</style>
+</head>
+<body>
+<main class="container">
+  <header>
+    <h1>⚖️ Balance the Scale</h1>
+    <p>Add or remove weights to balance both sides of the seesaw.<br>Can you achieve equilibrium?</p>
+  </header>
+
+  <section class="stats">
+    <div class="stat">Left weight: <strong id="leftTotal">0</strong></div>
+    <div class="stat">Right weight: <strong id="rightTotal">0</strong></div>
+    <div class="stat">Difference: <strong id="difference">0</strong></div>
+  </section>
+
+  <section class="scale-area">
+    <div class="ground"></div>
+    <div class="pivot"></div>
+    <div class="seesaw" id="seesaw">
+      <div class="side left" id="leftSide"></div>
+      <div class="side right" id="rightSide"></div>
+    </div>
+    <div class="side-label left-label">LEFT</div>
+    <div class="side-label right-label">RIGHT</div>
+  </section>
+
+  <section class="controls">
+    <div class="control-card">
+      <h2>🔵 Left Side</h2>
+      <p>Add or remove weights from the left.</p>
+      <div class="buttons">
+        <button class="add-left" onclick="addWeight('left',1)">+1 kg</button>
+        <button class="add-left" onclick="addWeight('left',2)">+2 kg</button>
+        <button class="remove" onclick="removeWeight('left')">− Remove</button>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <h2>🔴 Right Side</h2>
+      <p>Add or remove weights from the right.</p>
+      <div class="buttons">
+        <button class="add-right" onclick="addWeight('right',1)">+1 kg</button>
+        <button class="add-right" onclick="addWeight('right',2)">+2 kg</button>
+        <button class="remove" onclick="removeWeight('right')">− Remove</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="weight-summary">
+    <span>Left: <strong id="leftEquation">0 kg</strong></span>
+    <span>Right: <strong id="rightEquation">0 kg</strong></span>
+  </div>
+
+  <section class="bottom-row">
+    <div class="status" id="status">⚖️ Add weights to begin balancing!</div>
+    <button class="reset" onclick="resetScale()">↻ Reset Scale</button>
+  </section>
+</main>
+
+<script>
+const weights = {
+  left: [],
+  right: []
+};
+
+function getTotal(side) {
+  return weights[side].reduce((sum, weight) => sum + weight, 0);
+}
+
+function addWeight(side, amount) {
+  if (weights[side].length >= 10) return;
+  weights[side].push(amount);
+  updateScale();
+}
+
+function removeWeight(side) {
+  if (weights[side].length === 0) return;
+  weights[side].pop();
+  updateScale();
+}
+
+function updateBlocks(side) {
+  const container = document.getElementById(side + 'Side');
+  container.innerHTML = '';
+
+  weights[side].forEach(weight => {
+    const block = document.createElement('div');
+    block.className = 'block';
+    block.style.height = (weight === 1 ? 38 : 65) + 'px';
+    block.textContent = weight;
+    block.title = weight + ' kg';
+    container.appendChild(block);
+  });
+}
+
+function updateScale() {
+  const left = getTotal('left');
+  const right = getTotal('right');
+  const difference = left - right;
+
+  document.getElementById('leftTotal').textContent = left + ' kg';
+  document.getElementById('rightTotal').textContent = right + ' kg';
+  document.getElementById('difference').textContent = Math.abs(difference) + ' kg';
+
+  document.getElementById('leftEquation').textContent = left + ' kg';
+  document.getElementById('rightEquation').textContent = right + ' kg';
+
+  updateBlocks('left');
+  updateBlocks('right');
+
+  const angle = Math.max(-18, Math.min(18, -difference * 3));
+
+  document.getElementById('seesaw').style.transform =
+    `translateX(-50%) rotate(${angle}deg)`;
+
+  const status = document.getElementById('status');
+
+  if (difference === 0) {
+    status.textContent = left === 0
+      ? '⚖️ Add weights to begin balancing!'
+      : '🎉 Perfect balance! Both sides are equal!';
+    status.classList.toggle('balanced', left > 0);
+  } else if (difference > 0) {
+    status.textContent = '⬅️ Left side is heavier by ' + difference + ' kg';
+    status.classList.remove('balanced');
+  } else {
+    status.textContent = '➡️ Right side is heavier by ' + Math.abs(difference) + ' kg';
+    status.classList.remove('balanced');
+  }
+}
+
+function resetScale() {
+  weights.left = [];
+  weights.right = [];
+  updateScale();
+}
+
+updateScale();
+</script>
+</body>
+</html>
